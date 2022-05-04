@@ -87,6 +87,7 @@ async function run() {
         // GET single product api
         app.get("/products/:id", async (req, res) => {
             const id = req.params.id;
+            console.log('getting specific product', id)
             const query = { _id: ObjectId(id) };
             const result = await productCollection.findOne(query);
             res.send(result);
@@ -95,8 +96,11 @@ async function run() {
         //post Products api
         app.post('/products', async (req, res) => {
             const allProduct = req.body;
+            console.log("hit the post api", allProduct)
             const result = await productCollection.insertOne(allProduct);
+            console.log(result);
             res.json(result);
+            // res.send('post hitted')
         });
 
         //delete Product api
