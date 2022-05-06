@@ -50,6 +50,7 @@ async function run() {
         await client.connect();
         const database = client.db('agrikon')
         const productCollection = database.collection("products");
+        const farmerCollection = database.collection('farmers');
         const orderCollection = database.collection('orders');
         const usersCollection = database.collection('users');
         const reviewCollection = database.collection('reviews');
@@ -108,6 +109,40 @@ async function run() {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await productCollection.deleteOne(query);
+            res.json(result);
+        });
+
+        // GET farmers API
+        app.get("/farmers", async (req, res) => {
+            const cursor = farmerCollection.find({});
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
+        // GET single farmers api
+        app.get("/farmers/:id", async (req, res) => {
+            const id = req.params.id;
+            console.log('getting specific product', id)
+            const query = { _id: ObjectId(id) };
+            const result = await farmerCollection.findOne(query);
+            res.send(result);
+        });
+
+        //post farmers api
+        app.post('/farmers', async (req, res) => {
+            const allFarmer = req.body;
+            console.log("hit the post api", allFarmer)
+            const result = await farmerCollection.insertOne(allFarmer);
+            console.log(result);
+            res.json(result);
+            // res.send('post hitted')
+        });
+
+        //delete farmers api
+        app.delete('/farmers/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await farmerCollection.deleteOne(query);
             res.json(result);
         });
 
