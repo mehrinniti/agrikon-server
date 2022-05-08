@@ -6,6 +6,8 @@ const { MongoClient, ServerApiVersion } = require('mongodb');
 const ObjectId = require("mongodb").ObjectId;
 const res = require('express/lib/response');
 const admin = require("firebase-admin");
+const stripe = require('stripe')(process.env.STRIPE_SECRET);
+
 const port = process.env.PORT || 5000;
 
 
@@ -78,6 +80,33 @@ async function run() {
             res.json(result)
         })
 
+        // PUT Update orders status api
+        app.put("/orders/:id", async (req, res) => {
+            const id = req.params.id;
+            const updatedOrder = req.body;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    status: updatedOrder.status,
+                },
+            };
+            const result = await orderCollection.updateOne(
+                filter,
+                updateDoc,
+                options
+            );
+            res.json(result);
+        });
+
+        // DELETE my order api
+        app.delete("/orders/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await orderCollection.deleteOne(query);
+            res.json(result);
+        });
+
         // GET Products API
         app.get("/products", async (req, res) => {
             const cursor = productCollection.find({});
@@ -109,6 +138,44 @@ async function run() {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await productCollection.deleteOne(query);
+            res.json(result);
+        });
+
+        //  get single order for payment
+        app.get("/orders/:id", async (req, res) => {
+            const id = req.params.id;
+            console.log('getting specific product', id)
+            const query = { _id: ObjectId(id) };
+            const result = await orderCollection.findOne(query);
+            res.json(result);
+        });
+
+        //  post payment
+        app.post('/create-payment-intent', async (req, res) => {
+            const paymentInfo = req.body;
+            // Create a PaymentIntent with the order amount and currency
+            const amount = paymentInfo.productPrice * 100;
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: amount,
+                currency: "usd",
+                automatic_payment_methods: {
+                    enabled: true,
+                },
+            });
+            res.json({ clientSecret: paymentIntent.client_secret });
+        })
+
+        // update order for payment
+        app.put("/orders/:id", async (req, res) => {
+            const id = req.params.id;
+            const payment = req.body;
+            const filter = { _id: ObjectId(id) };
+            const updateDoc = {
+                $set: {
+                    payment: payment,
+                },
+            };
+            const result = await orderCollection.updateOne(filter, updateDoc);
             res.json(result);
         });
 
