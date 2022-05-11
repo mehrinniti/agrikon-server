@@ -58,18 +58,25 @@ async function run() {
         const reviewCollection = database.collection('reviews');
         const messageCollection = database.collection('messages');
 
-        //  Orders
+        //  get Single Order
 
         app.get('/orders', verifyToken, async (req, res) => {
             const email = req.query.email;
             // const date = req.query.date;
             // const date = new Date(req.query.date).toLocaleDateString();
             // console.log(date);
-            const query = { email: email }
-            // console.log(email)
+            const query = { userEmail: email }
+            console.log(email)
             const cursor = orderCollection.find(query);
             const orders = await cursor.toArray();
             res.json(orders);
+        })
+
+        //  get all orders
+        app.get('/allOrders', verifyToken, async (req, res) => {
+            const cursor = orderCollection.find({});
+            const result = await cursor.toArray();
+            res.send(result);
         })
 
 
@@ -142,7 +149,7 @@ async function run() {
         });
 
         //  get single order for payment
-        app.get("/orders/:id", async (req, res) => {
+        app.get("/payment/:id", async (req, res) => {
             const id = req.params.id;
             console.log('getting specific product', id)
             const query = { _id: ObjectId(id) };
@@ -166,7 +173,7 @@ async function run() {
         })
 
         // update order for payment
-        app.put("/orders/:id", async (req, res) => {
+        app.put("/payment/:id", async (req, res) => {
             const id = req.params.id;
             const payment = req.body;
             const filter = { _id: ObjectId(id) };
