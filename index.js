@@ -79,6 +79,33 @@ async function run() {
             res.send(result);
         })
 
+        // get all order single id
+        app.get("/allOrders/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await orderCollection.findOne(query);
+            res.send(result);
+        });
+
+        // update order status api
+        app.put("/allOrders/:id", async (req, res) => {
+            const id = req.params.id;
+            const updateOrder = req.body;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    status: updateOrder.status,
+                },
+            };
+            const result = await orderCollection.updateOne(
+                filter,
+                updateDoc,
+                options
+            );
+            res.json(result);
+        });
+
 
         app.post('/orders', async (req, res) => {
             const order = req.body;
