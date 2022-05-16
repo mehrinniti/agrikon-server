@@ -10,7 +10,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET);
 
 const port = process.env.PORT || 5000;
 
-
+//  firebase admin initialization
 const serviceAccount = require('./agrikon-agricultural-website-firebase-adminsdk.json');
 
 admin.initializeApp({
@@ -71,6 +71,13 @@ async function run() {
             const orders = await cursor.toArray();
             res.json(orders);
         })
+
+        //  get orders
+        // app.get('/orders', verifyToken, async (req, res) => {
+        //     const cursor = orderCollection.find({});
+        //     const result = await cursor.toArray();
+        //     res.send(result);
+        // })
 
         //  get all orders
         app.get('/allOrders', verifyToken, async (req, res) => {
@@ -178,7 +185,7 @@ async function run() {
         //  get single order for payment
         app.get("/payment/:id", async (req, res) => {
             const id = req.params.id;
-            console.log('getting specific product', id)
+            console.log('getting specific order', id)
             const query = { _id: ObjectId(id) };
             const result = await orderCollection.findOne(query);
             res.json(result);
@@ -212,6 +219,32 @@ async function run() {
             const result = await orderCollection.updateOne(filter, updateDoc);
             res.json(result);
         });
+
+
+
+
+        // update order status api
+        // app.put("/paymentUpdate/:id", async (req, res) => {
+        //     const id = req.params.id;
+        //     const updatePayment = req.body;
+        //     const filter = { _id: ObjectId(id) };
+        //     const options = { upsert: true };
+        //     const updateDoc = {
+        //         $set: {
+        //             status: updateOrder.status,
+        //         },
+        //     };
+        //     const result = await orderCollection.updateOne(
+        //         filter,
+        //         updateDoc,
+        //         options
+        //     );
+        //     res.json(result);
+        // });
+
+
+
+
 
         // GET farmers API
         app.get("/farmers", async (req, res) => {
@@ -305,7 +338,8 @@ async function run() {
         //  Social media users
         app.put('/users', async (req, res) => {
             const user = req.body;
-            const filter = { email: user.email };
+            // const filter = { email: user.email };
+            const filter = { userEmail: user.email };
             const options = { upsert: true };
             const updateDoc = { $set: user };
             const result = await usersCollection.updateOne(filter, updateDoc, options);
