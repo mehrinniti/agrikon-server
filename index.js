@@ -188,7 +188,9 @@ async function run() {
             console.log('getting specific order', id)
             const query = { _id: ObjectId(id) };
             const result = await orderCollection.findOne(query);
+            console.log('order payment result : ', result);
             res.json(result);
+
         });
 
         //  post payment
@@ -218,6 +220,7 @@ async function run() {
             };
             const result = await orderCollection.updateOne(filter, updateDoc);
             res.json(result);
+            console.log('payment result :', result);
         });
 
 
@@ -239,7 +242,9 @@ async function run() {
         //         updateDoc,
         //         options
         //     );
+        //     console.log('update order payment result : ', result);
         //     res.json(result);
+
         // });
 
 
